@@ -32,6 +32,10 @@ func longestCommonPrefix(strs []string) string {
 	// 最终结果切片组合为字符串
 	var commonPrefix string
 	for i := 0; i < len(prefix); i++ {
+		// 如果切片元素碰到了空字符串，直接跳出循环，后面的元素也不需要判断
+		if prefix[i] == "" {
+			break
+		}
 		commonPrefix += prefix[i]
 	}
 	return commonPrefix
