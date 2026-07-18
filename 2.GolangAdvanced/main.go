@@ -38,4 +38,6 @@ func main() {
 	// 四.channel
 	// 1.
 	runChannel()
+	// 2.
+	runChannelWithBuffer()
 }
