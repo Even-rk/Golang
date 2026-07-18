@@ -58,5 +58,6 @@ type Employee struct {
 
 // 打印员工信息
 func (e Employee) PrintInfo() {
-	fmt.Printf(e.Name, e.Age, e.EmployeeID)
+	// 格式化输出员工信息
+	fmt.Printf("姓名: %v, 年龄: %v, 员工ID: %v", e.Name, e.Age, e.EmployeeID)
 }
