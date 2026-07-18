@@ -35,4 +35,7 @@ func main() {
 	employee := Employee{Person: Person{Name: "张三", Age: 30}, EmployeeID: 1001}
 	// 调用实例方法
 	employee.PrintInfo()
+	// 四.channel
+	// 1.
+	runChannel()
 }
