@@ -4,13 +4,13 @@ package main
 func plusOne(digits []int) []int {
 	// 倒序遍历
 	for i := len(digits) - 1; i >= 0; i-- {
-		// 如果是9，并且是第一个9，就设置为0，并且在最前面添加1
-		if digits[i] == 9 && digits[len(digits)-1] == 9 {
+		// 如果是9就设置为0、
+		if digits[i] == 9 && i != 0 {
+			digits[i] = 0
+		} else if i == 0 {
+			// 如果是最高位，且是9，改为0并新增一个位，值为1
 			digits[i] = 0
 			digits = append([]int{1}, digits...)
-		} else if digits[i] == 9 && digits[len(digits)-1] != 9 {
-			// 如果是9，并且不是第一个9，就设置为0
-			digits[i] = 0
 		} else {
 			// 如果不是9，就加1
 			digits[i]++
