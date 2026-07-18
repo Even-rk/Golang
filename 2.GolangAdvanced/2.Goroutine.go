@@ -8,18 +8,26 @@ import (
 
 // 1.编写一个程序，使用 go 关键字启动两个协程，一个协程打印从1到10的奇数，另一个协程打印从2到10的偶数。
 // 函数 打印从1到10的奇数
-func printOdd() {
+func printOdd(wg *sync.WaitGroup) {
+	// 任务列➕1
+	wg.Add(1)
+	defer wg.Done()
 	for i := 1; i <= 10; i++ {
 		if i%2 == 1 {
+			time.Sleep(100 * time.Second)
 			fmt.Println(i)
 		}
 	}
 }
 
 // 函数 打印从2到10的偶数
-func printEven() {
+func printEven(wg *sync.WaitGroup) {
+	// 任务列➕1
+	wg.Add(1)
+	defer wg.Done()
 	for i := 2; i <= 10; i++ {
 		if i%2 == 0 {
+			time.Sleep(100 * time.Second)
 			fmt.Println(i)
 		}
 	}
@@ -27,8 +35,12 @@ func printEven() {
 
 // 执行调用，协程启动
 func printOddAndEven() {
-	go printOdd()
-	go printEven()
+	// 初始化任务列
+	var wg sync.WaitGroup
+	go printOdd(&wg)
+	go printEven(&wg)
+	// 等待所有协程完成
+	wg.Wait()
 }
 
 // 2.设计一个任务调度器，接收一组任务（可以用函数表示），并使用协程并发执行这些任务，同时统计每个任务的执行时间。
