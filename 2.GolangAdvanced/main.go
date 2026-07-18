@@ -40,4 +40,9 @@ func main() {
 	runChannel()
 	// 2.
 	runChannelWithBuffer()
+	// 五.锁机制
+	// 1.
+	runMutex()
+	// 2.
+	runAtomic()
 }
