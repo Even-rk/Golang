@@ -17,8 +17,9 @@ func main() {
 	printOddAndEven()
 	// 2.
 	var tasks []func()
-	tasks = append(tasks, func() { printOdd() })
-	tasks = append(tasks, func() { printEven() })
+	tasks = append(tasks, func() { fmt.Println("任务1") })
+	tasks = append(tasks, func() { fmt.Println("任务2") })
+	tasks = append(tasks, func() { fmt.Println("任务3") })
 	taskScheduler(tasks)
 	// 三.面向对象
 	// 1.
@@ -30,10 +31,10 @@ func main() {
 	fmt.Println(rectangle.Perimeter())
 	fmt.Println(circle.Area())
 	fmt.Println(circle.Perimeter())
-	// 2.
-	// 创建Employee实例
+	// // 2.
+	// // 创建Employee实例
 	employee := Employee{Person: Person{Name: "张三", Age: 30}, EmployeeID: 1001}
-	// 调用实例方法
+	// // 调用实例方法
 	employee.PrintInfo()
 	// 四.channel
 	// 1.
