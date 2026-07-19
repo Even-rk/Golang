@@ -2,51 +2,34 @@ package main
 
 // 给定一个只包含 '('，')'，'{'，'}'，'['，']' 的字符串，判断字符串是否有效
 func isValid(str string) bool {
-	// 创建切片
-	var stack []string
-	for i := 0; i < len(str); i++ {
-		// 字符顺序全部添加到切片
-		stack = append(stack, string(str[i]))
-	}
-	// 创建判断数组
-	var valid = []string{"()", "{}", "[]"}
-	for i := 0; i < len(stack)-1; i++ {
-		// 和下一个匹配是否一致
-		var isTrueNext bool
-		// 和上一个匹配是否一致
-		var isTruePre bool
-		// 判断字符串拼接是否匹配
-		var bracketPre string
-		bracketNext := stack[i] + stack[i+1]
-		if i > 0 {
-			bracketPre = stack[i-1] + stack[i]
-		}
-		for s := 0; s < len(valid); s++ {
-			if bracketNext == valid[s] {
-				// 如果匹配上了，isTrue为true
-				isTrueNext = true
-				break
-			}
-			if bracketPre == valid[s] {
-				// 如果匹配上了，isTrue为true
-				isTruePre = true
-				break
-			}
-		}
-		// 判断如果匹配上就删除
-		if isTrueNext {
-			stack = append(stack[:i], stack[i+2:]...)
-			i = -1
-			continue // 跳出当前循环，重新判断
-		}
-		// 判断如果匹配上就删除
-		if isTruePre {
-			stack = append(stack[:i-1], stack[i+1:]...)
-			i = -1
-			continue // 跳出当前循环，重新判断
-		}
+	// 初始化切片用于存储未匹配的左括号
+	var leftVals []string
+	// 建立右括号到对应左括号的映射，用于快速匹配
+	rightKey := map[string]string{
+		")": "(",
+		"}": "{",
+		"]": "[",
 	}
 
-	// 判断最终切片长度是否时0，如果是0就是所有的都匹配上了
-	return len(stack) == 0
+	// 遍历字符
+	for _, val := range str {
+		// 当前字符
+		crts := string(val)
+		// 如果是右括号，看切片中是否有匹配的左括号
+		if left, ok := rightKey[crts]; ok {
+			// 切片不为空且切片的最后一个元素是匹配的左括号，删除切片最后一个元素
+			if len(leftVals) > 0 && leftVals[len(leftVals)-1] == left {
+				// 删除切片最后一个元素
+				leftVals = leftVals[:len(leftVals)-1]
+			} else {
+				// 不匹配，直接返回无效
+				return false
+			}
+		} else {
+			// 如果是左括号，直接放到切片中
+			leftVals = append(leftVals, crts)
+		}
+	}
+	// 遍历结束后看切片是否为空，为空则所有括号都匹配成功
+	return len(leftVals) == 0
 }
