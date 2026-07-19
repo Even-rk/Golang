@@ -9,12 +9,10 @@ import (
 // 1.编写一个程序，使用 go 关键字启动两个协程，一个协程打印从1到10的奇数，另一个协程打印从2到10的偶数。
 // 函数 打印从1到10的奇数
 func printOdd(wg *sync.WaitGroup) {
-	// 任务列➕1
-	wg.Add(1)
 	defer wg.Done()
 	for i := 1; i <= 10; i++ {
 		if i%2 == 1 {
-			time.Sleep(100 * time.Second)
+			time.Sleep(100 * time.Millisecond)
 			fmt.Println(i)
 		}
 	}
@@ -23,11 +21,10 @@ func printOdd(wg *sync.WaitGroup) {
 // 函数 打印从2到10的偶数
 func printEven(wg *sync.WaitGroup) {
 	// 任务列➕1
-	wg.Add(1)
 	defer wg.Done()
 	for i := 2; i <= 10; i++ {
 		if i%2 == 0 {
-			time.Sleep(100 * time.Second)
+			time.Sleep(100 * time.Millisecond)
 			fmt.Println(i)
 		}
 	}
@@ -37,6 +34,8 @@ func printEven(wg *sync.WaitGroup) {
 func printOddAndEven() {
 	// 初始化任务列
 	var wg sync.WaitGroup
+	// 任务列➕2
+	wg.Add(2)
 	go printOdd(&wg)
 	go printEven(&wg)
 	// 等待所有协程完成

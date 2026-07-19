@@ -26,6 +26,7 @@ func main() {
 	fmt.Println(plusOne([]int{9}))          // [1,0]
 	fmt.Println(plusOne([]int{4, 1, 2, 2})) // [4,1,2,3]
 	fmt.Println(plusOne([]int{9, 9, 9}))    // [1，0,0,0]
+	fmt.Println(plusOne([]int{1, 9, 9}))    // [1，0,0,0]
 	// 6,删除重复项结果
 	var nums = []int{1, 1, 2}
 	fmt.Println(removeDuplicates(&nums)) // 2

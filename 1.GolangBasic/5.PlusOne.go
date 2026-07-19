@@ -7,7 +7,7 @@ func plusOne(digits []int) []int {
 		// 如果是9就设置为0、
 		if digits[i] == 9 && i != 0 {
 			digits[i] = 0
-		} else if i == 0 {
+		} else if i == 0 && digits[i] == 9 {
 			// 如果是最高位，且是9，改为0并新增一个位，值为1
 			digits[i] = 0
 			digits = append([]int{1}, digits...)
