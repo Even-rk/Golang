@@ -1,26 +1,25 @@
 package main
 
 import (
-	"fmt"
-
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 // 模型定义
-// 创建user模型：用户模型，包含用户ID、用户名、邮箱字段
+// 创建user模型：用户模型，包含用户ID、用户名、邮箱，文章数量统计字段
 type User struct {
-	ID    int    `gorm:"primaryKey"`
-	Name  string `gorm:"column:name"`
-	Email string `gorm:"column:email"`
+	ID        int    `gorm:"primaryKey"`
+	Name      string `gorm:"column:name"`
+	Email     string `gorm:"column:email"`
+	PostCount int    `gorm:"column:post_count;default:0"` // 文章数量统计值，默认值为 0
 }
 
-// 创建post模型 ：文章模型，包含文章ID、标题、内容、用户ID字段
+// 创建post模型 ：文章模型，包含文章ID、标题、内容、用户ID，评论状态字段
 type Post struct {
-	ID      int    `gorm:"primaryKey"`
-	Title   string `gorm:"column:title"`
-	Content string `gorm:"column:content"`
-	UserID  int    `gorm:"column:user_id"`
+	ID            int    `gorm:"primaryKey"`
+	Title         string `gorm:"column:title"`
+	Content       string `gorm:"column:content"`
+	UserID        int    `gorm:"column:user_id"`
+	CommentStatus string `gorm:"column:comment_status;default:无评论"` // 评论状态，默认值为 "无评论"
 }
 
 // 创建comment模型 ：评论模型，包含评论ID、文章ID、用户ID、内容字段
@@ -30,12 +29,7 @@ type Comment struct {
 	Content string `gorm:"column:content"`
 }
 
-func CreateTable() *gorm.DB {
-	// 初始化数据库连接
-	db, err := gorm.Open(mysql.Open("root:102466@tcp(127.0.0.1:3306)/gorm"), &gorm.Config{})
-	if err != nil {
-		fmt.Printf("数据库连接失败: %v", err)
-	}
+func CreateTable(db *gorm.DB) {
 	// 创建数据库表
 	db.AutoMigrate(&User{}, &Post{}, &Comment{})
 	// 清空数据
@@ -87,6 +81,4 @@ func CreateTable() *gorm.DB {
 	// fmt.Printf("查询到的用户:%v", users)
 	// fmt.Printf("查询到的文章:%v", posts)
 	// fmt.Printf("查询到的评论:%v", comments)
-
-	return db
 }

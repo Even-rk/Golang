@@ -1,11 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+)
 
 func main() {
 	// 1. 初始化并创建数据库表
-	db := CreateTable()
-
+	db, err := gorm.Open(mysql.Open("root:102466@tcp(127.0.0.1:3306)/gorm"), &gorm.Config{})
+	if err != nil {
+		fmt.Printf("数据库连接失败: %v", err)
+	}
+	// 创建数据
+	CreateTable(db)
 	// 2.1 查询某个用户发布的所有文章及其对应的评论信息
 	userList := []User{}
 	db.Find(&userList)
@@ -31,4 +40,8 @@ func main() {
 	post := QueryMostCommentedPost(db)
 	// 评论数量最多的文章信息
 	fmt.Printf("评论数量最多的文章ID：%d, 标题：%s, 内容：%s\n", post.ID, post.Title, post.Content)
+	// 3.删除评论
+	var comment Comment
+	db.Model(&Comment{}).Limit(1).First(&comment)
+	db.Delete(&comment)
 }
