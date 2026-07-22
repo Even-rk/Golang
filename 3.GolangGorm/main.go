@@ -43,5 +43,6 @@ func main() {
 	// 3.删除评论
 	var comment Comment
 	db.Model(&Comment{}).Limit(1).First(&comment)
-	db.Delete(&comment)
+	// 删除评论
+	db.Unscoped().Where("id = ?", comment.ID).Delete(&Comment{})
 }
