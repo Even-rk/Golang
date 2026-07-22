@@ -27,7 +27,6 @@ type Post struct {
 type Comment struct {
 	ID      int    `gorm:"primaryKey"`
 	PostID  int    `gorm:"column:post_id"`
-	UserID  int    `gorm:"column:user_id"`
 	Content string `gorm:"column:content"`
 }
 
@@ -66,16 +65,16 @@ func CreateTable() *gorm.DB {
 	// var comments []Comment
 	// 添加多个评论到数据库
 	var commentList = []Comment{
-		{PostID: 1, UserID: 1, Content: "这是一篇文章的第一条评论"},
-		{PostID: 2, UserID: 1, Content: "这是第二篇文章的第一条评论"},
-		{PostID: 3, UserID: 1, Content: "这是第三篇文章的第一条评论"},
-		{PostID: 4, UserID: 2, Content: "这是第四篇文章的第一条评论"},
-		{PostID: 5, UserID: 2, Content: "这是第五篇文章的第一条评论"},
-		{PostID: 1, UserID: 2, Content: "这是第一篇文章的第二条评论"},
-		{PostID: 2, UserID: 2, Content: "这是第二篇文章的第二条评论"},
-		{PostID: 3, UserID: 2, Content: "这是第三篇文章的第二条评论"},
-		{PostID: 3, UserID: 2, Content: "这是第三篇文章的第三条评论"},
-		{PostID: 3, UserID: 2, Content: "这是第三篇文章的第四条评论"},
+		{Content: "这是一篇文章的第一条评论"},
+		{PostID: 2, Content: "这是第二篇文章的第一条评论"},
+		{PostID: 3, Content: "这是第三篇文章的第一条评论"},
+		{PostID: 4, Content: "这是第四篇文章的第一条评论"},
+		{PostID: 5, Content: "这是第五篇文章的第一条评论"},
+		{PostID: 1, Content: "这是第一篇文章的第二条评论"},
+		{PostID: 2, Content: "这是第二篇文章的第二条评论"},
+		{PostID: 3, Content: "这是第三篇文章的第二条评论"},
+		{PostID: 3, Content: "这是第三篇文章的第三条评论"},
+		{PostID: 3, Content: "这是第三篇文章的第四条评论"},
 	}
 	db.Create(&commentList)
 	// // 查询用户表
