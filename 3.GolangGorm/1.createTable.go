@@ -63,7 +63,7 @@ func CreateTable(db *gorm.DB) {
 	// var comments []Comment
 	// 添加多个评论到数据库
 	var commentList = []Comment{
-		{PostID: 1, Content: "这是一篇文章的第一条评论"}, // 修复：添加 PostID: 1，原来默认为 0，不属于任何文章
+		{PostID: 1, Content: "这是第一篇文章的第一条评论"},
 		{PostID: 2, Content: "这是第二篇文章的第一条评论"},
 		{PostID: 3, Content: "这是第三篇文章的第一条评论"},
 		{PostID: 4, Content: "这是第四篇文章的第一条评论"},
