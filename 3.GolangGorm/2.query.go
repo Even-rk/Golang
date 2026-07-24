@@ -14,10 +14,10 @@ func QueryUserPostsAndComments(db *gorm.DB, userID int) []PostWithComments {
 	// 查询用户发布的所有文章
 	var posts []Post
 	db.Model(&Post{}).Where("user_id = ?", userID).Find(&posts)
-
-	// 查询文章对应的评论
-	var comments []Comment
+	// 遍历文章，查询评论
 	for _, post := range posts {
+		// 查询文章对应的评论
+		var comments []Comment
 		db.Model(&Comment{}).Where("post_id = ?", post.ID).Find(&comments)
 		// 将文章和评论信息打包到结构体中
 		postsWithComments = append(postsWithComments, PostWithComments{

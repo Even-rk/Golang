@@ -11,15 +11,18 @@ type User struct {
 	Name      string `gorm:"column:name"`
 	Email     string `gorm:"column:email"`
 	PostCount int    `gorm:"column:post_count;default:0"` // 文章数量统计值，默认值为 0
+	Posts     []Post `gorm:"foreignKey:UserID"`           // 一对多关联
 }
 
 // 创建post模型 ：文章模型，包含文章ID、标题、内容、用户ID，评论状态字段
 type Post struct {
-	ID            int    `gorm:"primaryKey"`
-	Title         string `gorm:"column:title"`
-	Content       string `gorm:"column:content"`
-	UserID        int    `gorm:"column:user_id"`
-	CommentStatus string `gorm:"column:comment_status;default:无评论"` // 评论状态，默认值为 "无评论"
+	ID            int       `gorm:"primaryKey"`
+	Title         string    `gorm:"column:title"`
+	Content       string    `gorm:"column:content"`
+	UserID        int       `gorm:"column:user_id"`
+	CommentStatus string    `gorm:"column:comment_status;default:无评论"` // 评论状态，默认值为 "无评论"
+	User          User      `gorm:"foreignKey:UserID"`                 // 一对一关联
+	Comments      []Comment `gorm:"foreignKey:PostID"`                 // 一对多关联
 }
 
 // 创建comment模型 ：评论模型，包含评论ID、文章ID、用户ID、内容字段
@@ -27,6 +30,7 @@ type Comment struct {
 	ID      int    `gorm:"primaryKey"`
 	PostID  int    `gorm:"column:post_id"`
 	Content string `gorm:"column:content"`
+	Post    Post   `gorm:"foreignKey:PostID"` // 一对一关联
 }
 
 func CreateTable(db *gorm.DB) {
@@ -59,7 +63,7 @@ func CreateTable(db *gorm.DB) {
 	// var comments []Comment
 	// 添加多个评论到数据库
 	var commentList = []Comment{
-		{Content: "这是一篇文章的第一条评论"},
+		{PostID: 1, Content: "这是一篇文章的第一条评论"}, // 修复：添加 PostID: 1，原来默认为 0，不属于任何文章
 		{PostID: 2, Content: "这是第二篇文章的第一条评论"},
 		{PostID: 3, Content: "这是第三篇文章的第一条评论"},
 		{PostID: 4, Content: "这是第四篇文章的第一条评论"},
