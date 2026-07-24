@@ -34,12 +34,12 @@ type Comment struct {
 }
 
 func CreateTable(db *gorm.DB) {
+	// 删除表
+	db.Exec("DROP TABLE comments")
+	db.Exec("DROP TABLE posts")
+	db.Exec("DROP TABLE users")
 	// 创建数据库表
 	db.AutoMigrate(&User{}, &Post{}, &Comment{})
-	// 清空数据
-	db.Exec("TRUNCATE TABLE users")
-	db.Exec("TRUNCATE TABLE posts")
-	db.Exec("TRUNCATE TABLE comments")
 	// 创建实例对应User模型
 	// var users []User
 	// 添加多个用户到数据库
