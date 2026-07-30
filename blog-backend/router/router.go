@@ -9,10 +9,10 @@ import (
 
 func RegisterRoutes(r *gin.Engine) {
 	// 配置CORS中间件
-	r.Use(middleware.CORS)
+	r.Use(middleware.CORS())
 
 	// 配置JWT中间件
-	r.Use(middleware.JWT)
+	r.Use(middleware.JWT())
 
 	// 配置用户路由
 	userRouter := r.Group("/user")

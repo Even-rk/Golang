@@ -17,7 +17,7 @@ func main() {
 	}
 	fmt.Println("数据库连接成功", db)
 	// 初始化 Gin 路由
-	r := gin.Default()
+	r := gin.New()
 	// 注册路由
 	router.RegisterRoutes(r)
 	// 启动服务器
