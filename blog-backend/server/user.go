@@ -4,17 +4,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // 注册用户
-func RegisterUser(c *gin.Context) {
+func RegisterUser(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Register User",
 	})
 }
 
 // 用户登录
-func LoginUser(c *gin.Context) {
+func LoginUser(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login User",
 	})

@@ -19,7 +19,7 @@ func main() {
 	// 初始化 Gin 路由
 	r := gin.New()
 	// 注册路由
-	router.RegisterRoutes(r)
+	router.RegisterRoutes(r, db)
 	// 启动服务器
 	r.Run(":8080")
 }
