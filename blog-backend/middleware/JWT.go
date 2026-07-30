@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +12,7 @@ func JWT() gin.HandlerFunc {
 		// 检查 Authorization 字段是否存在
 		if authHeader == "" {
 			// 如果Authorization字段为空，返回401 Unauthorized错误
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+			c.JSON(401, gin.H{"error": "Authorization header is missing"})
 			// 中止请求处理
 			c.Abort()
 			return
