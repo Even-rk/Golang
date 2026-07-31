@@ -63,7 +63,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		})
 		// 获取评论列表
 		commentRouter.GET("/list", func(c *gin.Context) {
-			server.GetCommentList(c, db)
+			server.GetCommentListByPostID(c, db)
 		})
 	}
 }

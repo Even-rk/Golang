@@ -18,3 +18,9 @@ type CreateCommentRequest struct {
 	UserID  int    `json:"user_id" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
+
+// 更新评论请求结构
+type UpdateCommentRequest struct {
+	CommentID int    `json:"comment_id" binding:"required"`
+	Content   string `json:"content"`
+}

@@ -14,9 +14,9 @@ func CreateComment(c *gin.Context, db *gorm.DB) {
 	})
 }
 
-// 获取评论列表
-func GetCommentList(c *gin.Context, db *gorm.DB) {
+// 获取文章下评论列表
+func GetCommentListByPostID(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Get Comment List",
+		"message": "Get Comment List by PostID",
 	})
 }

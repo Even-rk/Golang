@@ -108,7 +108,7 @@ func GetAllPostList(c *gin.Context, db *gorm.DB) {
 	}
 
 	// 转换文章列表为JSON格式
-	var postsJSON []gin.H
+	var postsData []gin.H
 	for _, post := range posts {
 		postJSON := gin.H{
 			"id":         post.ID,
@@ -119,15 +119,15 @@ func GetAllPostList(c *gin.Context, db *gorm.DB) {
 			"created_at": post.CreatedAt.Format("2006-01-02 15:04:05"), // 添加创建时间
 			"comments":   post.Comments,
 		}
-		postsJSON = append(postsJSON, postJSON)
+		postsData = append(postsData, postJSON)
 	}
 
 	// 返回文章列表
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "success",
-		"data":    postsJSON,
-		"total":   len(postsJSON), // 添加总数
+		"data":    postsData,
+		"total":   len(postsData), // 添加总数
 	})
 }
 
