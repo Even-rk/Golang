@@ -50,17 +50,16 @@ func CreatePost(c *gin.Context, db *gorm.DB) {
 func GetSinglePost(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取文章ID
 	postID := c.Param("postID")
-	// 从数据库中查询文章
 	var post model.Post
-	if err := db.Where("id = ?", postID).First(&post).Error; err != nil {
+	err := db.Preload("Comments.User").Preload("User").Where("id = ?", postID).First(&post).Error
+	if err == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusNotFound, gin.H{
-			"code":    http.StatusNotFound,
-			"message": err.Error(),
+			"code":    200,
+			"message": "success",
+			"data":    []gin.H{},
 		})
 		return
-	}
-	// 查询文章评论
-	if err := db.Where("post_id = ?", postID).Find(&post.Comments).Error; err != nil {
+	} else if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
 			"message": err.Error(),
@@ -68,20 +67,22 @@ func GetSinglePost(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// 转换文章为JSON格式
+	// 转换文章为JSON格式，保持和列表接口一致的字段
 	postJSON := gin.H{
-		"id":       post.ID,
-		"title":    post.Title,
-		"content":  post.Content,
-		"user_id":  post.UserID,
-		"comments": post.Comments,
+		"id":         post.ID,
+		"title":      post.Title,
+		"content":    post.Content,
+		"user_id":    post.UserID,
+		"user_name":  post.User.Username,
+		"created_at": post.CreatedAt.Format("2006-01-02 15:04:05"),
+		"comments":   post.Comments,
 	}
 
 	// 返回文章详情
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "success",
-		"post":    postJSON,
+		"data":    postJSON,
 	})
 }
 
@@ -90,7 +91,14 @@ func GetAllPostList(c *gin.Context, db *gorm.DB) {
 	var posts []model.Post
 	// 使用 Preload 预加载评论和用户信息
 	err := db.Preload("Comments.User").Preload("User").Find(&posts).Error
-	if err != nil {
+	if err == gorm.ErrRecordNotFound {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    200,
+			"message": "success",
+			"data":    []gin.H{},
+		})
+		return
+	} else if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
 			"message": err.Error(),
@@ -117,7 +125,7 @@ func GetAllPostList(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    http.StatusOK,
 		"message": "success",
-		"posts":   postsJSON,
+		"data":    postsJSON,
 		"total":   len(postsJSON), // 添加总数
 	})
 }

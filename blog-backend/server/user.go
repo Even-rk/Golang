@@ -107,10 +107,16 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	// 根据用户名查询用户
 	var user model.User
 	userErr := db.Where("username = ?", req.Username).First(&user).Error
-	if userErr != nil {
+	if userErr == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    http.StatusUnauthorized,
+			"code":    200,
 			"message": "用户不存在",
+		})
+		return
+	} else if userErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": userErr.Error(),
 		})
 		return
 	}
@@ -118,7 +124,7 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	passwordValid := verifyPassword(user.Password, req.Password)
 	if !passwordValid {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    http.StatusUnauthorized,
+			"code":    200,
 			"message": "密码错误",
 		})
 		return

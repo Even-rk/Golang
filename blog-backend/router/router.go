@@ -34,8 +34,8 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		postRouter.POST("/create", func(c *gin.Context) {
 			server.CreatePost(c, db)
 		})
-		// 获取单个文章列表
-		postRouter.GET("/", func(c *gin.Context) {
+		// 获取单个文章详情
+		postRouter.GET("/:postID", func(c *gin.Context) {
 			server.GetSinglePost(c, db)
 		})
 		// 获取所有文章列表
