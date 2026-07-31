@@ -20,10 +20,3 @@ func GetCommentList(c *gin.Context, db *gorm.DB) {
 		"message": "Get Comment List",
 	})
 }
-
-// 获取评论详情
-func GetCommentDetail(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Get Comment Detail",
-	})
-}

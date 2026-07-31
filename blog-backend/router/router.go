@@ -43,13 +43,21 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		postRouter.POST("/create", func(c *gin.Context) {
 			server.CreatePost(c, db)
 		})
-		// 获取文章列表
+		// 获取单个文章列表
 		postRouter.GET("/list", func(c *gin.Context) {
-			server.GetPostList(c, db)
+			server.GetSinglePostList(c, db)
 		})
-		// 获取文章详情
-		postRouter.GET("/detail", func(c *gin.Context) {
-			server.GetPostDetail(c, db)
+		// 获取所有文章列表
+		postRouter.GET("/all", func(c *gin.Context) {
+			server.GetAllPostList(c, db)
+		})
+		// 更新文章
+		postRouter.PUT("/update", func(c *gin.Context) {
+			server.UpdatePost(c, db)
+		})
+		// 删除文章
+		postRouter.DELETE("/delete", func(c *gin.Context) {
+			server.DeletePost(c, db)
 		})
 	}
 
@@ -63,10 +71,6 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		// 获取评论列表
 		commentRouter.GET("/list", func(c *gin.Context) {
 			server.GetCommentList(c, db)
-		})
-		// 获取评论详情
-		commentRouter.GET("/detail", func(c *gin.Context) {
-			server.GetCommentDetail(c, db)
 		})
 	}
 }
