@@ -89,6 +89,7 @@ func RegisterUser(c *gin.Context, db *gorm.DB) {
 func LoginUser(c *gin.Context, db *gorm.DB) {
 	// 绑定请求参数到 LoginUser 模型
 	var req model.LoginUser
+	// 验证请求参数
 	reqErr := c.ShouldBindJSON(&req)
 	if reqErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
