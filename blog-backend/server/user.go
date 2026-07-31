@@ -63,6 +63,7 @@ func RegisterUser(c *gin.Context, db *gorm.DB) {
 	encryptedPassword := encryptPassword(req.Password)
 	if encryptedPassword == "" {
 		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
 			"message": "密码加密失败",
 		})
 		return
@@ -77,12 +78,16 @@ func RegisterUser(c *gin.Context, db *gorm.DB) {
 	createErr := db.Create(&newUser).Error
 	if createErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
 			"message": "用户注册失败" + createErr.Error(),
 		})
 		return
 	}
 	// 注册用户
-	c.JSON(http.StatusOK, gin.H{"message": "注册成功"})
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "注册成功",
+	})
 }
 
 // 用户登录
@@ -93,6 +98,7 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	reqErr := c.ShouldBindJSON(&req)
 	if reqErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
 			"message": "参数错误: " + reqErr.Error(),
 		})
 		return
@@ -103,6 +109,7 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	userErr := db.Where("username = ?", req.Username).First(&user).Error
 	if userErr != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
 			"message": "用户不存在",
 		})
 		return
@@ -111,6 +118,7 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	passwordValid := verifyPassword(user.Password, req.Password)
 	if !passwordValid {
 		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
 			"message": "密码错误",
 		})
 		return
@@ -119,6 +127,8 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	// 登录成功，返回token
 	token, _ := middleware.GenerateToken(int(user.ID), user.Username, user.Email)
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		"code":        http.StatusOK,
+		"message":     "登录成功",
+		"accessToken": token,
 	})
 }
