@@ -11,7 +11,8 @@ import (
 func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	// 配置CORS中间件
 	r.Use(middleware.CORS())
-
+	// 配置日志中间件
+	r.Use(middleware.Logger())
 	// 配置用户路由
 	userRouter := r.Group("/user")
 	{

@@ -17,21 +17,21 @@ func getJWTKey() []byte {
 
 // 自定义 Claims 结构体，嵌套标准 RegisteredClaims
 type Claims struct {
+	UserID   int    `json:"user_id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 为指定用户名生成 JWT 令牌
-func GenerateToken(username string, email string, password string) (string, error) {
+func GenerateToken(userID int, username string, email string) (string, error) {
 	// 设置令牌过期时间为 24 小时后
 	expirationTime := time.Now().Add(24 * time.Hour)
 	// 构造包含用户信息的 claims
 	claims := &Claims{
+		UserID:   userID,
 		Username: username,
 		Email:    email,
-		Password: password,
 		RegisteredClaims: jwt.RegisteredClaims{
 			// 将过期时间转换为 NumericDate 格式
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
