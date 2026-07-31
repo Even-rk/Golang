@@ -3,7 +3,6 @@ package router
 import (
 	"blog-backend/middleware"
 	"blog-backend/server"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -12,16 +11,6 @@ import (
 func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	// 配置CORS中间件
 	r.Use(middleware.CORS())
-
-	// 配置JWT中间件
-	r.Use(middleware.JWT())
-
-	// 根路由
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello, World!",
-		})
-	})
 
 	// 配置用户路由
 	userRouter := r.Group("/user")
@@ -38,6 +27,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 
 	// 配置文章路由
 	postRouter := r.Group("/post")
+	postRouter.Use(middleware.JWT())
 	{
 		// 创建文章
 		postRouter.POST("/create", func(c *gin.Context) {
@@ -63,6 +53,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 
 	// 配置评论路由
 	commentRouter := r.Group("/comment")
+	commentRouter.Use(middleware.JWT())
 	{
 		// 创建评论
 		commentRouter.POST("/create", func(c *gin.Context) {
