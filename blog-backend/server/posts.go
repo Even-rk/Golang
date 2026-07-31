@@ -4,6 +4,7 @@ import (
 	"blog-backend/middleware"
 	model "blog-backend/types"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -132,14 +133,108 @@ func GetAllPostList(c *gin.Context, db *gorm.DB) {
 
 // 更新文章
 func UpdatePost(c *gin.Context, db *gorm.DB) {
+	// 绑定更新请求参数
+	var req model.UpdatePostRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "参数错误: " + err.Error(),
+		})
+		return
+	}
+
+	// 从token中获取当前用户信息
+	claims, _ := c.Get("claims")
+	userClaims, _ := claims.(*middleware.Claims)
+	// 查询文章信息
+	var post model.Post
+	if err := db.Where("id = ?", req.PostID).First(&post).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 权限验证：只有作者本人可以更新文章
+	if post.UserID != userClaims.UserID {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":    http.StatusForbidden,
+			"message": "无权限，只有作者本人可以修改文章",
+		})
+		return
+	}
+
+	// 更新文章字段
+	if req.Title != "" {
+		post.Title = req.Title
+	}
+	if req.Content != "" {
+		post.Content = req.Content
+	}
+
+	// 保存更新
+	if err := db.Save(&post).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Update Post",
+		"code":    http.StatusOK,
+		"message": "更新成功",
 	})
 }
 
 // 删除文章
 func DeletePost(c *gin.Context, db *gorm.DB) {
+	// 从请求参数中获取文章ID
+	postIDStr := c.Param("postID")
+	postID, err := strconv.Atoi(postIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "文章ID格式错误",
+		})
+		return
+	}
+
+	// 从token中获取当前用户信息
+	claims, _ := c.Get("claims")
+	userClaims, _ := claims.(*middleware.Claims)
+
+	// 查询文章信息
+	var post model.Post
+	if err := db.Where("id = ?", postID).First(&post).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 权限验证：只有作者本人可以删除文章
+	if post.UserID != userClaims.UserID {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":    http.StatusForbidden,
+			"message": "无权限，只有作者本人可以删除文章",
+		})
+		return
+	}
+
+	// 删除文章（GORM 的 Delete 会软删除，因为 gorm.Model 包含 DeletedAt 字段）
+	if err := db.Delete(&post).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Delete Post",
+		"code":    http.StatusOK,
+		"message": "删除成功",
 	})
 }

@@ -20,6 +20,7 @@ type CreatePostRequest struct {
 
 // 更新文章请求结构
 type UpdatePostRequest struct {
+	PostID  int    `json:"postID" binding:"required"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
