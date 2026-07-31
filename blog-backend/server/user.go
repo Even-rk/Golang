@@ -32,18 +32,30 @@ func verifyPassword(hashedPassword, plainPassword string) bool {
 func RegisterUser(c *gin.Context, db *gorm.DB) {
 	// 绑定请求参数到 RegisterUser 模型
 	var req model.RegisterUser
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// 验证请求参数
+	reqErr := c.ShouldBindJSON(&req)
+	if reqErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "参数错误: " + err.Error(),
+			"message": "参数错误: " + reqErr.Error(),
 		})
 		return
 	}
-
 	// 检查用户名是否存在
 	var user model.User
-	if err := db.Where("username = ?", req.Username).First(&user).Error; err == nil {
+	queryUserErr := db.Where("username = ?", req.Username).First(&user).Error
+	// 如果用户名不存在，返回错误
+	if queryUserErr == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Username already exists",
+			"message": "用户名已存在",
+		})
+		return
+	}
+	// 检查邮箱是否存在
+	var userByEmail model.User
+	queryEmailErr := db.Where("email = ?", req.Email).First(&userByEmail).Error
+	if queryEmailErr == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "邮箱已存在",
 		})
 		return
 	}
@@ -62,10 +74,10 @@ func RegisterUser(c *gin.Context, db *gorm.DB) {
 		Password: encryptedPassword,
 	}
 	// 保存用户到数据库
-	err := db.Create(&newUser).Error
-	if err != nil {
+	createErr := db.Create(&newUser).Error
+	if createErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "用户注册失败" + err.Error(),
+			"message": "用户注册失败" + createErr.Error(),
 		})
 		return
 	}

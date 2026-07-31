@@ -14,7 +14,13 @@ import (
 
 // GetDBURL 获取数据库连接URL
 func GetDBURL() string {
-	return os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")/" + os.Getenv("DB_NAME")
+	DBuser := os.Getenv("DB_USER")
+	DBpassword := os.Getenv("DB_PASSWORD")
+	DBhost := os.Getenv("DB_HOST")
+	DBport := os.Getenv("DB_PORT")
+	DBname := os.Getenv("DB_NAME")
+	dsn := "charset=utf8mb4&parseTime=true&loc=Local"
+	return DBuser + ":" + DBpassword + "@tcp(" + DBhost + ":" + DBport + ")/" + DBname + "?" + dsn
 }
 
 func main() {
