@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -8,15 +9,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// 可嵌入标准字段的Claims 结构体
-type CustomClaims struct {
-	UserID               string `json:"user_id"`
-	Password             string `json:"password"`
-	jwt.RegisteredClaims        // 包含 exp, iat, nbf 等标准字段
+// getJWTKey 获取 JWT 密钥（从环境变量读取）
+func getJWTKey() []byte {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	return []byte(jwtSecret)
 }
-
-// JWT 签名密钥（生产环境应放在配置中）
-var jwtKey = []byte("my_secret_key")
 
 // 自定义 Claims 结构体，嵌套标准 RegisteredClaims
 type Claims struct {
@@ -43,7 +40,7 @@ func GenerateToken(username string, email string, password string) (string, erro
 	// 使用 HS256 算法和 claims 创建新令牌
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// 使用密钥对令牌进行签名并返回字符串
-	return token.SignedString(jwtKey)
+	return token.SignedString(getJWTKey())
 }
 
 // AuthMiddleware 返回一个用于 JWT 认证的 Gin 中间件
@@ -67,7 +64,7 @@ func JWT() gin.HandlerFunc {
 			claims,
 			func(token *jwt.Token) (interface{}, error) {
 				// 提供解析所需的签名密钥
-				return jwtKey, nil
+				return getJWTKey(), nil
 			})
 		// 如果解析出错或令牌无效，返回 401
 		if err != nil || !token.Valid {
