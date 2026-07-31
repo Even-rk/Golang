@@ -224,7 +224,16 @@ func DeletePost(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// 删除文章（GORM 的 Delete 会软删除，因为 gorm.Model 包含 DeletedAt 字段）
+	// 删除文章下的所有评论（批量删除）
+	if err := db.Where("post_id = ?", postID).Delete(&model.Comment{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 删除文章
 	if err := db.Delete(&post).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
