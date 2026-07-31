@@ -1,12 +1,12 @@
 package model
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type User struct {
-	ID        uint      `gorm:"primaryKey"`     // 主键
-	Username  string    `gorm:"not null"`       // 用户名
-	Email     string    `gorm:"not null"`       // 邮箱
-	Password  string    `gorm:"not null"`       // 密码
-	CreatedAt time.Time `gorm:"autoCreateTime"` // 创建时间
-	UpdatedAt time.Time `gorm:"autoUpdateTime"` // 更新时间
+	gorm.Model        // 自动添加主键、创建时间、更新时间字段
+	Username   string `gorm:"not null"` // 用户名
+	Email      string `gorm:"not null"` // 邮箱
+	Password   string `gorm:"not null"` // 密码
 }

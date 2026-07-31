@@ -2,6 +2,7 @@ package main
 
 import (
 	"blog-backend/router"
+	model "blog-backend/types"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,8 @@ func main() {
 		fmt.Printf("数据库连接失败: %v", err)
 	}
 	fmt.Println("数据库连接成功", db)
+	// 自动迁移模型
+	db.AutoMigrate(&model.User{}, &model.Post{}, &model.Comment{})
 	// 初始化 Gin 路由
 	r := gin.New()
 	// 注册路由
