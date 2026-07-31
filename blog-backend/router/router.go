@@ -35,13 +35,14 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 			server.CreatePost(c, db)
 		})
 		// 获取单个文章列表
-		postRouter.GET("/list", func(c *gin.Context) {
-			server.GetSinglePostList(c, db)
+		postRouter.GET("/", func(c *gin.Context) {
+			server.GetSinglePost(c, db)
 		})
 		// 获取所有文章列表
-		postRouter.GET("/all", func(c *gin.Context) {
+		postRouter.GET("/allList", func(c *gin.Context) {
 			server.GetAllPostList(c, db)
 		})
+
 		// 更新文章
 		postRouter.PUT("/update", func(c *gin.Context) {
 			server.UpdatePost(c, db)

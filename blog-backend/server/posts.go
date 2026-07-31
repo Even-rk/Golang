@@ -46,17 +46,79 @@ func CreatePost(c *gin.Context, db *gorm.DB) {
 	})
 }
 
-// 获取单个文章列表
-func GetSinglePostList(c *gin.Context, db *gorm.DB) {
+// 获取单个文章详情
+func GetSinglePost(c *gin.Context, db *gorm.DB) {
+	// 从请求参数中获取文章ID
+	postID := c.Param("postID")
+	// 从数据库中查询文章
+	var post model.Post
+	if err := db.Where("id = ?", postID).First(&post).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"message": err.Error(),
+		})
+		return
+	}
+	// 查询文章评论
+	if err := db.Where("post_id = ?", postID).Find(&post.Comments).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 转换文章为JSON格式
+	postJSON := gin.H{
+		"id":       post.ID,
+		"title":    post.Title,
+		"content":  post.Content,
+		"user_id":  post.UserID,
+		"comments": post.Comments,
+	}
+
+	// 返回文章详情
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Get Single Post List",
+		"code":    http.StatusOK,
+		"message": "success",
+		"post":    postJSON,
 	})
 }
 
 // 获取所有文章列表
 func GetAllPostList(c *gin.Context, db *gorm.DB) {
+	var posts []model.Post
+	// 使用 Preload 预加载评论和用户信息
+	err := db.Preload("Comments.User").Preload("User").Find(&posts).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 转换文章列表为JSON格式
+	var postsJSON []gin.H
+	for _, post := range posts {
+		postJSON := gin.H{
+			"id":         post.ID,
+			"title":      post.Title,
+			"content":    post.Content,
+			"user_id":    post.UserID,
+			"user_name":  post.User.Username,
+			"created_at": post.CreatedAt.Format("2006-01-02 15:04:05"), // 添加创建时间
+			"comments":   post.Comments,
+		}
+		postsJSON = append(postsJSON, postJSON)
+	}
+
+	// 返回文章列表
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Get All Post List",
+		"code":    http.StatusOK,
+		"message": "success",
+		"posts":   postsJSON,
+		"total":   len(postsJSON), // 添加总数
 	})
 }
 
