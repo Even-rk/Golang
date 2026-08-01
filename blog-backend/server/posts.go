@@ -4,7 +4,6 @@ import (
 	"blog-backend/middleware"
 	model "blog-backend/types"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -50,7 +49,7 @@ func CreatePost(c *gin.Context, db *gorm.DB) {
 // 获取单个文章详情
 func GetSinglePost(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取文章ID
-	postID := c.Param("postID")
+	postID := c.Param("PostID")
 	var post model.Post
 	err := db.Preload("Comments.User").Preload("User").Where("id = ?", postID).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
@@ -191,20 +190,10 @@ func UpdatePost(c *gin.Context, db *gorm.DB) {
 // 删除文章
 func DeletePost(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取文章ID
-	postIDStr := c.Param("postID")
-	postID, err := strconv.Atoi(postIDStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    http.StatusBadRequest,
-			"message": "文章ID格式错误",
-		})
-		return
-	}
-
+	postID := c.Param("PostID")
 	// 从token中获取当前用户信息
 	claims, _ := c.Get("claims")
 	userClaims, _ := claims.(*middleware.Claims)
-
 	// 查询文章信息
 	var post model.Post
 	if err := db.Where("id = ?", postID).First(&post).Error; err != nil {

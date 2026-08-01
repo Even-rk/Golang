@@ -35,7 +35,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 			server.CreatePost(c, db)
 		})
 		// 获取单个文章详情
-		postRouter.GET("/:postID", func(c *gin.Context) {
+		postRouter.GET("/:PostID", func(c *gin.Context) {
 			server.GetSinglePost(c, db)
 		})
 		// 获取所有文章列表
@@ -48,7 +48,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 			server.UpdatePost(c, db)
 		})
 		// 删除文章
-		postRouter.DELETE("/delete", func(c *gin.Context) {
+		postRouter.DELETE("/delete/:PostID", func(c *gin.Context) {
 			server.DeletePost(c, db)
 		})
 	}
