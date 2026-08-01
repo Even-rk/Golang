@@ -14,12 +14,12 @@ type Comment struct {
 
 // 创建评论请求结构
 type CreateCommentRequest struct {
-	PostID  int    `json:"post_id" binding:"required"`
+	PostID  int    `json:"postID" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 
 // 更新评论请求结构
 type UpdateCommentRequest struct {
-	CommentID int    `json:"comment_id" binding:"required"`
-	Content   string `json:"content"`
+	CommentID int    `json:"commentID" binding:"required"`
+	Content   string `json:"content"   binding:"required"`
 }
