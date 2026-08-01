@@ -15,7 +15,6 @@ type Comment struct {
 // 创建评论请求结构
 type CreateCommentRequest struct {
 	PostID  int    `json:"post_id" binding:"required"`
-	UserID  int    `json:"user_id" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 

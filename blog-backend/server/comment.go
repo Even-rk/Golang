@@ -20,6 +20,16 @@ func CreateComment(c *gin.Context, db *gorm.DB) {
 		})
 		return
 	}
+	// 检查文章是否存在
+	var post model.Post
+	err := db.Where("id = ?", req.PostID).First(&post).Error
+	if err == gorm.ErrRecordNotFound {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "文章不存在",
+		})
+		return
+	}
 	// 从token中取用户信息
 	var userClaims *middleware.Claims
 	claims, _ := c.Get("claims")
@@ -49,7 +59,7 @@ func CreateComment(c *gin.Context, db *gorm.DB) {
 // 获取文章下评论列表
 func GetCommentListByPostID(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取文章ID
-	postID := c.Param("postID")
+	postID := c.Param("PostID")
 	var comments []model.Comment
 	// 使用 Preload 预加载用户信息
 	err := db.Preload("User").Where("post_id = ?", postID).Find(&comments).Error
@@ -94,16 +104,23 @@ func GetCommentListByPostID(c *gin.Context, db *gorm.DB) {
 // 删除评论
 func DeleteComment(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取评论ID
-	commentID := c.Param("commentID")
+	commentID := c.Param("CommentID")
 	// 从token中获取当前用户信息
 	claims, _ := c.Get("claims")
 	userClaims, _ := claims.(*middleware.Claims)
 
 	// 查询评论信息
 	var comment model.Comment
-	if err := db.Where("id = ?", commentID).First(&comment).Error; err != nil {
+	err := db.Where("id = ?", commentID).First(&comment).Error
+	if err == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusNotFound, gin.H{
-			"code":    http.StatusNotFound,
+			"code":    404,
+			"message": "评论不存在",
+		})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
 			"message": err.Error(),
 		})
 		return
@@ -118,11 +135,12 @@ func DeleteComment(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// 删除评论（GORM 的 Delete 会软删除，因为 gorm.Model 包含 DeletedAt 字段）
-	if err := db.Delete(&comment).Error; err != nil {
+	// 删除评论
+	delErr := db.Delete(&comment).Error
+	if delErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
-			"message": err.Error(),
+			"message": delErr.Error(),
 		})
 		return
 	}

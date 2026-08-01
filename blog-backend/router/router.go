@@ -62,11 +62,11 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 			server.CreateComment(c, db)
 		})
 		// 获取评论列表
-		commentRouter.GET("/list/:postID", func(c *gin.Context) {
+		commentRouter.GET("/list/:PostID", func(c *gin.Context) {
 			server.GetCommentListByPostID(c, db)
 		})
 		// 删除评论
-		commentRouter.DELETE("/delete/:commentID", func(c *gin.Context) {
+		commentRouter.DELETE("/delete/:CommentID", func(c *gin.Context) {
 			server.DeleteComment(c, db)
 		})
 	}
