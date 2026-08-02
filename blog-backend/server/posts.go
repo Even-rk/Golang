@@ -150,17 +150,9 @@ func UpdatePost(c *gin.Context, db *gorm.DB) {
 	}
 
 	// 从token中获取当前用户信息
-	claims, ok := c.Get("claims")
-	// 类型断言转换为 *middleware.Claims 并检查
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    http.StatusUnauthorized,
-			"message": "用户认证失败",
-		})
-		return
-	}
-	userClaims, ok := claims.(*middleware.Claims)
-	if !ok || userClaims == nil {
+	claims, _ := c.Get("claims")
+	userClaims, _ := claims.(*middleware.Claims)
+	if userClaims == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":    http.StatusUnauthorized,
 			"message": "用户认证失败",
@@ -216,17 +208,9 @@ func DeletePost(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取文章ID
 	postID := c.Param("PostID")
 	// 从token中获取当前用户信息
-	claims, ok := c.Get("claims")
-	// 类型断言转换为 *middleware.Claims 并检查
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    http.StatusUnauthorized,
-			"message": "用户认证失败",
-		})
-		return
-	}
-	userClaims, ok := claims.(*middleware.Claims)
-	if !ok || userClaims == nil {
+	claims, _ := c.Get("claims")
+	userClaims, _ := claims.(*middleware.Claims)
+	if userClaims == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":    http.StatusUnauthorized,
 			"message": "用户认证失败",
