@@ -34,14 +34,14 @@ func main() {
 	err := godotenv.Load(envFile)
 	if err != nil {
 		fmt.Printf("加载配置文件失败: %v\n", err)
-		panic(err)
+		return
 	}
 
 	// 链接数据库
 	db, err := gorm.Open(mysql.Open(GetDBURL()), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("数据库连接失败: %v", err)
-		panic(err)
+		return
 	}
 	fmt.Println("数据库连接成功", db)
 	// 自动迁移模型
