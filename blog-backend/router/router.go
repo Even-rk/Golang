@@ -26,47 +26,56 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		})
 	}
 
-	// 配置文章路由
-	postRouter := r.Group("/post")
-	postRouter.Use(middleware.JWT())
+	// 配置公开文章路由（不需要认证）
+	postPublicRouter := r.Group("/post")
 	{
-		// 创建文章
-		postRouter.POST("/create", func(c *gin.Context) {
-			server.CreatePost(c, db)
-		})
 		// 获取单个文章详情
-		postRouter.GET("/:PostID", func(c *gin.Context) {
+		postPublicRouter.GET("/:PostID", func(c *gin.Context) {
 			server.GetSinglePost(c, db)
 		})
 		// 获取所有文章列表
-		postRouter.GET("/allList", func(c *gin.Context) {
+		postPublicRouter.GET("/allList", func(c *gin.Context) {
 			server.GetAllPostList(c, db)
 		})
+	}
 
+	// 配置需要认证的文章路由
+	postAuthRouter := r.Group("/post")
+	postAuthRouter.Use(middleware.JWT())
+	{
+		// 创建文章
+		postAuthRouter.POST("/create", func(c *gin.Context) {
+			server.CreatePost(c, db)
+		})
 		// 更新文章
-		postRouter.PUT("/update", func(c *gin.Context) {
+		postAuthRouter.PUT("/update", func(c *gin.Context) {
 			server.UpdatePost(c, db)
 		})
 		// 删除文章
-		postRouter.DELETE("/delete/:PostID", func(c *gin.Context) {
+		postAuthRouter.DELETE("/delete/:PostID", func(c *gin.Context) {
 			server.DeletePost(c, db)
 		})
 	}
 
-	// 配置评论路由
-	commentRouter := r.Group("/comment")
-	commentRouter.Use(middleware.JWT())
+	// 配置公开评论路由（不需要认证）
+	commentPublicRouter := r.Group("/comment")
 	{
-		// 创建评论
-		commentRouter.POST("/create", func(c *gin.Context) {
-			server.CreateComment(c, db)
-		})
 		// 获取评论列表
-		commentRouter.GET("/list/:PostID", func(c *gin.Context) {
+		commentPublicRouter.GET("/list/:PostID", func(c *gin.Context) {
 			server.GetCommentListByPostID(c, db)
 		})
+	}
+
+	// 配置需要认证的评论路由
+	commentAuthRouter := r.Group("/comment")
+	commentAuthRouter.Use(middleware.JWT())
+	{
+		// 创建评论
+		commentAuthRouter.POST("/create", func(c *gin.Context) {
+			server.CreateComment(c, db)
+		})
 		// 删除评论
-		commentRouter.DELETE("/delete/:CommentID", func(c *gin.Context) {
+		commentAuthRouter.DELETE("/delete/:CommentID", func(c *gin.Context) {
 			server.DeleteComment(c, db)
 		})
 	}

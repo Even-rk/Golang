@@ -109,7 +109,7 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	userErr := db.Where("username = ?", req.Username).First(&user).Error
 	if userErr == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    200,
+			"code":    http.StatusUnauthorized,
 			"message": "用户不存在",
 		})
 		return
@@ -124,7 +124,7 @@ func LoginUser(c *gin.Context, db *gorm.DB) {
 	passwordValid := verifyPassword(user.Password, req.Password)
 	if !passwordValid {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"code":    200,
+			"code":    http.StatusUnauthorized,
 			"message": "密码错误",
 		})
 		return

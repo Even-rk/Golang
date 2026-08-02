@@ -26,14 +26,22 @@ func GetDBURL() string {
 func main() {
 	// 获取当前环境，默认开发环境
 	appEnv := os.Getenv("MODE")
+	if appEnv == "" {
+		appEnv = "development"
+	}
 	// 根据当前环境加载对应的配置文件
 	envFile := ".env." + appEnv
 	err := godotenv.Load(envFile)
+	if err != nil {
+		fmt.Printf("加载配置文件失败: %v\n", err)
+		panic(err)
+	}
 
 	// 链接数据库
 	db, err := gorm.Open(mysql.Open(GetDBURL()), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("数据库连接失败: %v", err)
+		panic(err)
 	}
 	fmt.Println("数据库连接成功", db)
 	// 自动迁移模型

@@ -22,9 +22,23 @@ func CreatePost(c *gin.Context, db *gorm.DB) {
 	}
 	// 从token中取用户信息
 	var userClaims *middleware.Claims
-	claims, _ := c.Get("claims")
-	// 类型断言转换为 *middleware.Claims
-	userClaims, _ = claims.(*middleware.Claims)
+	claims, ok := c.Get("claims")
+	// 类型断言转换为 *middleware.Claims 并检查
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
+	userClaims, ok = claims.(*middleware.Claims)
+	if !ok || userClaims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
 	// 创建文章
 	newPost := model.Post{
 		Title:   req.Title,
@@ -134,23 +148,40 @@ func GetAllPostList(c *gin.Context, db *gorm.DB) {
 func UpdatePost(c *gin.Context, db *gorm.DB) {
 	// 绑定更新请求参数
 	var req model.UpdatePostRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	bindErr := c.ShouldBindJSON(&req)
+	if bindErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
-			"message": "参数错误: " + err.Error(),
+			"message": "参数错误: " + bindErr.Error(),
 		})
 		return
 	}
 
 	// 从token中获取当前用户信息
-	claims, _ := c.Get("claims")
-	userClaims, _ := claims.(*middleware.Claims)
+	claims, ok := c.Get("claims")
+	// 类型断言转换为 *middleware.Claims 并检查
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
+	userClaims, ok := claims.(*middleware.Claims)
+	if !ok || userClaims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
 	// 查询文章信息
 	var post model.Post
-	if err := db.Where("id = ?", req.PostID).First(&post).Error; err != nil {
+	queryPostErr := db.Where("id = ?", req.PostID).First(&post).Error
+	if queryPostErr != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,
-			"message": err.Error(),
+			"message": queryPostErr.Error(),
 		})
 		return
 	}
@@ -173,10 +204,11 @@ func UpdatePost(c *gin.Context, db *gorm.DB) {
 	}
 
 	// 保存更新
-	if err := db.Save(&post).Error; err != nil {
+	savePostErr := db.Save(&post).Error
+	if savePostErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
-			"message": err.Error(),
+			"message": savePostErr.Error(),
 		})
 		return
 	}
@@ -192,14 +224,30 @@ func DeletePost(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取文章ID
 	postID := c.Param("PostID")
 	// 从token中获取当前用户信息
-	claims, _ := c.Get("claims")
-	userClaims, _ := claims.(*middleware.Claims)
+	claims, ok := c.Get("claims")
+	// 类型断言转换为 *middleware.Claims 并检查
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
+	userClaims, ok := claims.(*middleware.Claims)
+	if !ok || userClaims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
 	// 查询文章信息
 	var post model.Post
-	if err := db.Where("id = ?", postID).First(&post).Error; err != nil {
+	queryPostErr := db.Where("id = ?", postID).First(&post).Error
+	if queryPostErr != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,
-			"message": err.Error(),
+			"message": queryPostErr.Error(),
 		})
 		return
 	}
@@ -213,20 +261,28 @@ func DeletePost(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// 删除文章下的所有评论（批量删除）
-	if err := db.Where("post_id = ?", postID).Delete(&model.Comment{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    http.StatusInternalServerError,
-			"message": err.Error(),
-		})
-		return
-	}
+	// 使用事务保证删除操作的原子性：先删除评论，再删除文章
+	txErr := db.Transaction(func(tx *gorm.DB) error {
+		// 删除文章下的所有评论（批量删除）
+		delCommentsErr := tx.Where("post_id = ?", postID).Delete(&model.Comment{}).Error
+		if delCommentsErr != nil {
+			// 返回错误会自动回滚
+			return delCommentsErr
+		}
+		// 删除文章
+		delPostErr := tx.Delete(&post).Error
+		if delPostErr != nil {
+			// 返回错误会自动回滚
+			return delPostErr
+		}
+		// 返回nil会自动提交
+		return nil
+	})
 
-	// 删除文章
-	if err := db.Delete(&post).Error; err != nil {
+	if txErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
-			"message": err.Error(),
+			"message": txErr.Error(),
 		})
 		return
 	}

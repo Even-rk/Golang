@@ -22,19 +22,39 @@ func CreateComment(c *gin.Context, db *gorm.DB) {
 	}
 	// 检查文章是否存在
 	var post model.Post
-	err := db.Where("id = ?", req.PostID).First(&post).Error
-	if err == gorm.ErrRecordNotFound {
+	checkPostErr := db.Where("id = ?", req.PostID).First(&post).Error
+	if checkPostErr == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": "文章不存在",
 		})
 		return
+	} else if checkPostErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    http.StatusInternalServerError,
+			"message": checkPostErr.Error(),
+		})
+		return
 	}
 	// 从token中取用户信息
 	var userClaims *middleware.Claims
-	claims, _ := c.Get("claims")
-	// 类型断言转换为 *middleware.Claims
-	userClaims, _ = claims.(*middleware.Claims)
+	claims, ok := c.Get("claims")
+	// 类型断言转换为 *middleware.Claims 并检查
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
+	userClaims, ok = claims.(*middleware.Claims)
+	if !ok || userClaims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
 	// 创建评论
 	newComment := model.Comment{
 		PostID:  req.PostID,
@@ -106,22 +126,37 @@ func DeleteComment(c *gin.Context, db *gorm.DB) {
 	// 从请求参数中获取评论ID
 	commentID := c.Param("CommentID")
 	// 从token中获取当前用户信息
-	claims, _ := c.Get("claims")
-	userClaims, _ := claims.(*middleware.Claims)
+	claims, ok := c.Get("claims")
+	// 类型断言转换为 *middleware.Claims 并检查
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
+	userClaims, ok := claims.(*middleware.Claims)
+	if !ok || userClaims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "用户认证失败",
+		})
+		return
+	}
 
 	// 查询评论信息
 	var comment model.Comment
-	err := db.Where("id = ?", commentID).First(&comment).Error
-	if err == gorm.ErrRecordNotFound {
+	queryCommentErr := db.Where("id = ?", commentID).First(&comment).Error
+	if queryCommentErr == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": "评论不存在",
 		})
 		return
-	} else if err != nil {
+	} else if queryCommentErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    http.StatusInternalServerError,
-			"message": err.Error(),
+			"message": queryCommentErr.Error(),
 		})
 		return
 	}
